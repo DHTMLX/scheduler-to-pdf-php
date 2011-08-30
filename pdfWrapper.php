@@ -687,7 +687,7 @@ class pdfWrapper {
 
 	
 	public function getMultidayHeight($events, $lineHeight) {
-		$scheme = Array();
+		$scheme = Array(0);
 		for ($i = 0; $i < count($events); $i++) {
 			$start = $events[$i]['day'];
 			$length = $events[$i]['len'];

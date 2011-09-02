@@ -1087,6 +1087,7 @@ class pdfWrapper {
 
 	// converts color from "ffffff" to Array('R' => 255, 'G' => 255, 'B' => 255)
 	private function convertColor($colorHex) {
+		if ($colorHex == '') return 'transparent';
 		$final = Array();
 		$final['R'] = hexdec(substr($colorHex, 0, 2));
 		$final['G'] = hexdec(substr($colorHex, 2, 2));

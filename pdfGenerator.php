@@ -25,10 +25,10 @@ class schedulerPDF {
 		$this->renderEvents($xml);
 
 		if ($this->header !== false) {
-			$this->offsetTop += $this->headerImgHeight;
+			$this->sizes->offsetTop += $this->headerImgHeight;
 		}
 		if ($this->footer !== false) {
-			$this->offsetBottom += $this->footerImgHeight;
+			$this->sizes->offsetBottom += $this->footerImgHeight;
 		}
 		$this->wrapper = new pdfWrapper($this->sizes);
 		switch ($this->mode) {
@@ -51,6 +51,10 @@ class schedulerPDF {
 			case 'timeline':
 				$this->orientation = 'L';
 				$this->printTimeline();
+				break;
+			case 'week_agenda':
+				$this->orientation = 'P';
+				$this->printWeekAgenda();
 				break;
 			case 'day':
 			case 'unit':
@@ -152,6 +156,13 @@ class schedulerPDF {
 				$this->agendaHeader[1] = $this->strip((string) $scales->column[1]);
 				break;
 
+			case 'week_agenda':
+				foreach ($scales->column as $col) {
+					$day = $this->strip((string) $col);
+					$this->dayHeader[] = $day;
+				}
+				break;
+			
 			case 'timeline':
 			case 'matrix':
 				foreach ($scales->x->column as $col) {
@@ -212,6 +223,13 @@ class schedulerPDF {
 					$event['text_color'] = $this->parseColor((string) $ev->attributes()->color);
 					$event['color'] = $this->parseColor((string) $ev->attributes()->backgroundColor);
 					$this->events[$month.'_'.$week.'_'.$day] = $event;
+				}
+				break;
+			case 'week_agenda':
+				foreach ($xml->event as $ev) {
+					$day = $this->strip((int) $ev->attributes()->day);
+					$body = $this->strip((string) $ev->body);
+					$this->events[] = Array('day' => $day, 'body' => $body);
 				}
 				break;
 			case 'agenda':
@@ -366,6 +384,22 @@ class schedulerPDF {
 		$this->wrapper->drawMatrixEvents($this->events, $this->sizes, $this->colors);
 		if ($this->profile === 'bw')
 			$this->wrapper->bwBorder($this->colors);
+	}
+
+
+	private function printWeekAgenda() {
+		if ($this->header !== false) {
+			$this->wrapper->setHeader($this->headerImg, $this->headerImgHeight);
+		}
+		if ($this->footer !== false) {
+			$this->wrapper->setFooter($this->footerImg, $this->footerImgHeight);
+		}
+		$events = $this->events;
+		while (count($events) > 0) {
+			$this->wrapper->drawWeekAgendaContainer($this->dayHeader, $this->sizes, $this->colors, $this->orientation);
+			$this->wrapper->drawToday($this->today, $this->sizes, $this->colors);
+			$events = $this->wrapper->drawWeekAgendaEvents($events, $this->sizes, $this->colors);
+		}
 	}
 
 
@@ -644,6 +678,8 @@ class Sizes {
 	public $multidayLineHeight = 5;
 	// height of month line event
 	public $monthEventHeaderHeight = 4;
+	// header height of day container in month mode
+	public $weekAgendaEventHeight = 6;
 
 	// font size settings
 	public $monthHeaderFontSize = 9;

@@ -500,7 +500,7 @@ class pdfWrapper {
 		$border = ($colors->profile === 'bw') ? 1 : 0;
 		$text = $this->textWrap($agendaHeader[0], $timeColWidth, $sizes->agendaFontSize);
 		$this->cb->Cell($timeColWidth, $sizes->agendaRowHeight, $text, $border, 0, 'C', 1);
-		
+
 		$border = ($colors->profile === 'bw') ? 1 : 'L';
 		$text = $this->textWrap($agendaHeader[1], $dscColWidth, $sizes->agendaFontSize);
 		$this->cb->Cell($dscColWidth, $sizes->agendaRowHeight, $text, $border, 1, 'C', 1);
@@ -1020,6 +1020,98 @@ class pdfWrapper {
 		}
 	}
 
+	
+	
+	public function drawWeekAgendaContainer($dayHeader, $sizes, $colors, $orientation) {
+		$this->cb->addPage();
+		$lineColor = $this->convertColor($colors->lineColor);
+		$headerLineColor = $this->convertColor($colors->headerLineColor);
+		$headerColor = $this->convertColor($colors->bgColor);
+		$lineStyle = Array('width' => 0.1, 'cap' => 'round', 'join' => 'round', 'dash' => '0', 'color' => $lineColor);
+		$this->cb->setLineStyle($lineStyle);
+		$this->cb->SetFontSize($sizes->monthHeaderFontSize);
+
+		$this->contWidth = $width = ($this->cb->getPageWidth() - $this->offsetLeft - $this->offsetRight)/2;
+		$this->contHeight = $height = ($this->cb->getPageHeight() - $this->offsetTop - $this->offsetBottom)/3;
+		$this->setFillColor($headerColor);
+		for ($i = 0; $i < 3; $i++) {
+			$x = $this->offsetLeft;
+			$y = $this->offsetTop + $height*$i;
+			$this->drawWeekAgendaDay($sizes, $colors, $dayHeader[$i], $width, $height, $x, $y);
+		}
+
+		for ($i = 0; $i < 2; $i++) {
+			$x = $this->offsetLeft + $width;
+			$y = $this->offsetTop + $height*$i;
+			$this->drawWeekAgendaDay($sizes, $colors, $dayHeader[$i + 3], $width, $height, $x, $y);
+		}
+
+		$tall_height = $height/2;
+		for ($i = 0; $i < 2; $i++) {
+			$x = $this->offsetLeft + $width;
+			$y = $this->offsetTop + $height*2 + $tall_height*$i;
+			$this->drawWeekAgendaDay($sizes, $colors, $dayHeader[$i + 5], $width, $tall_height, $x, $y);
+		}
+
+		$x = $this->offsetLeft + $width;
+		for ($i = 0; $i < 3; $i++) {
+			$y = $this->offsetTop + $height*$i;
+			$lineStyle['color'] = $headerLineColor;
+			$this->cb->Line($x, $y, $x, $y + $sizes->monthHeaderHeight, $lineStyle);
+		}
+		$this->drawImgHeader();
+		$this->drawImgFooter();
+	}
+
+	public function drawWeekAgendaDay($sizes, $colors, $name, $width, $height, $x, $y, $border = 1) {
+		$this->cb->setX($x);
+		$this->cb->setY($y, false);
+		$this->cb->Cell($width, $height, '', 1, 0, 'C', 0);
+		$this->cb->setX($x);
+		$this->cb->setY($y, false);
+		$this->cb->Cell($width, $sizes->monthHeaderHeight, $name, 1, 0, 'C', 1);
+	}
+
+	public function drawWeekAgendaEvents($events, $sizes, $colors) {
+		$lineColor = $this->convertColor($colors->lineColor);
+		$lineStyle = Array('width' => 0.1, 'cap' => 'round', 'join' => 'round', 'dash' => '0', 'color' => $lineColor);
+		$this->cb->setLineStyle($lineStyle);
+		$this->cb->setFontSize($sizes->monthEventFontSize);
+		$offsets = array_fill(0, 7, 0);
+		$rest = Array();
+		
+		
+		for ($i = 0; $i < count($events); $i++) {
+			$event = $events[$i];
+			$day = $event['day'];
+			$cont_height = ($day < 5) ? $this->contHeight : $this->contHeight/2;
+			$cont_width = $this->contWidth;
+			switch ($day) {
+				case 0:
+				case 2:
+				case 4:
+					$x = $this->offsetLeft;
+					break;
+				default:
+					$x = $this->offsetLeft + $cont_width;
+					break;
+			}
+			$cont_start_y = $this->offsetTop + floor($day/2)*$this->contHeight - ($day > 5 ? $cont_height : 0);
+			$offset = $offsets[$day]*$sizes->weekAgendaEventHeight;
+			$y = $cont_start_y + $sizes->monthHeaderHeight + $offset;
+
+			if ($cont_start_y + $cont_height < $y + $sizes->weekAgendaEventHeight) {
+				$rest[] = $event;
+				continue;
+			}
+
+			$this->cb->SetX($x);
+			$this->cb->SetY($y, false);
+			$this->cb->Cell($cont_width, $sizes->weekAgendaEventHeight, $event['body'], 'B', 0, 'L');
+			$offsets[$day]++;
+		}
+		return $rest;
+	}
 
 	// draws header image
 	public function drawImgHeader() {

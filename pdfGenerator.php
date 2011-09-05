@@ -41,6 +41,7 @@ class schedulerPDF {
 				$this->printYear();
 				break;
 			case 'agenda':
+			case 'map':
 				$this->orientation = 'P';
 				$this->printAgenda();
 				break;
@@ -152,6 +153,7 @@ class schedulerPDF {
 				}
 				break;
 			case 'agenda':
+			case 'map':
 				$this->agendaHeader[0] = $this->strip((string) $scales->column[0]);
 				$this->agendaHeader[1] = $this->strip((string) $scales->column[1]);
 				break;
@@ -233,6 +235,7 @@ class schedulerPDF {
 				}
 				break;
 			case 'agenda':
+			case 'map':
 				foreach ($xml->event as $ev) {
 					$head = $this->strip((string) $ev->head);
 					$body = $this->strip((string) $ev->body);

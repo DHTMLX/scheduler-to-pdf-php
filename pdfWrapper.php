@@ -1076,7 +1076,7 @@ class pdfWrapper {
 		$lineColor = $this->convertColor($colors->lineColor);
 		$lineStyle = Array('width' => 0.1, 'cap' => 'round', 'join' => 'round', 'dash' => '0', 'color' => $lineColor);
 		$this->cb->setLineStyle($lineStyle);
-		$this->cb->setFontSize($sizes->monthEventFontSize);
+		$this->cb->setFontSize($sizes->monthHeaderFontSize);
 		$offsets = array_fill(0, 7, 0);
 		$rest = Array();
 		

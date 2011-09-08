@@ -3,8 +3,8 @@
 require_once './pdfGenerator.php';
 require_once './pdfWrapper.php';
 require_once './tcpdf_ext.php';
-$debug = true;
-//$error_handler = set_error_handler("PDFErrorHandler");
+$debug = false;
+$error_handler = set_error_handler("PDFErrorHandler");
 
 if (get_magic_quotes_gpc()) {
 	$xmlString = stripslashes($_POST['mycoolxmlbody']);

@@ -690,7 +690,7 @@ class Sizes {
 	public $monthEventFontSize = 7;
 	public $yearHeaderFontSize = 8;
 	public $yearFontSize = 8;
-	public $agendaFontSize = 8;
+	public $agendaFontSize = 7.5;
 	public $dayHeaderFontSize = 7;
 	public $dayScaleFontSize = 8;
 	public $dayEventHeaderFontSize = 7;

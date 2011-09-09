@@ -518,7 +518,7 @@ class pdfWrapper {
 				$this->cb->addPage();
 				$this->drawImgHeader();
 				$this->drawImgFooter();
-				$this->drawToday($today, $todayFontSize);
+				$this->drawToday($today, $sizes->todayFontSize);
 				$this->cb->setFontSize($fontSize);
 				$this->setFillColor($bgColor);
 				$this->setTextColor($headerTextColor);

@@ -518,17 +518,17 @@ class pdfWrapper {
 				$this->cb->addPage();
 				$this->drawImgHeader();
 				$this->drawImgFooter();
-				$this->drawToday($today, $sizes->todayFontSize);
-				$this->cb->setFontSize($fontSize);
+				$this->drawToday($today, $sizes, $colors);
+				$this->cb->setFontSize($sizes->agendaFontSize);
 				$this->setFillColor($bgColor);
 				$this->setTextColor($headerTextColor);
 				$border = ($colors->profile === 'bw') ? 1 : 0;
-				$text = $this->textWrap($agendaHeader[0], $timeColWidth, $fontSize);
-				$this->cb->Cell($timeColWidth, $rowHeight, $text, $border, 0, 'C', 1);
+				$text = $this->textWrap($agendaHeader[0], $timeColWidth, $sizes->agendaFontSize);
+				$this->cb->Cell($timeColWidth, $sizes->agendaRowHeight, $text, $border, 0, 'C', 1);
 				
 				$border = ($colors->profile === 'bw') ? 1 : 'L';
-				$text = $this->textWrap($agendaHeader[1], $dscColWidth, $fontSize);
-				$this->cb->Cell($dscColWidth, $rowHeight, $text, $border, 1, 'C', 1);
+				$text = $this->textWrap($agendaHeader[1], $dscColWidth, $sizes->agendaFontSize);
+				$this->cb->Cell($dscColWidth, $sizes->agendaRowHeight, $text, $border, 1, 'C', 1);
 			}
 			// selects scale color
 			if ($i%2 == 0) {

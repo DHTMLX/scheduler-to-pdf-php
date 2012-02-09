@@ -205,11 +205,13 @@ class pdfWrapper {
 
 				// sets event color
 				$color = $event['color'];
+				$actual_color = false;
 				if (($color == false)||($colors->profile !== 'color')) {
 					$this->setFillColor($eventColor);
 				} else {
 					$color = $this->convertColor($color);
 					$this->setFillColor($color);
+					$actual_color = true;
 				}
 				$text_color = $event['text_color'];
 				if (($text_color == false)||($colors->profile !== 'color')) {
@@ -219,7 +221,7 @@ class pdfWrapper {
 					$this->setTextColor($text_color);
 				}
 
-				if ($event['type'] == 'event_clear') {
+				if ($event['type'] == 'event_clear' && !$actual_color) {
 					$this->cb->Cell($width, $height, $text, 0, 0, 'L', 0);
 				} else {
 					$this->cb->Cell($width, $height, $text, 1, 0, 'L', 1);

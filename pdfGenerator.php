@@ -18,6 +18,7 @@ class schedulerPDF {
 	private $mode;
 	private $today;
 	private $multiday = Array();
+	private $secondScale = array();
 
 	public function printScheduler($xml) {
 		$this->renderData($xml);
@@ -31,6 +32,8 @@ class schedulerPDF {
 			$this->sizes->offsetBottom += $this->footerImgHeight;
 		}
 		$this->wrapper = new pdfWrapper($this->sizes);
+		if (strpos($this->mode, "timeline") !== false)
+			$this->mode = "timeline";
 		switch ($this->mode) {
 			case 'month':
 				$this->orientation = 'L';
@@ -120,6 +123,7 @@ class schedulerPDF {
 	private function renderScales($xml) {
 		$scales = $xml->scale;
 		$this->mode = (string) $scales->attributes()->mode;
+		if (strpos($this->mode, "timeline") !== false) $this->mode = "timeline";
 		$this->today = $this->strip((string) $scales->attributes()->today);
 
 		switch ($this->mode) {
@@ -164,11 +168,17 @@ class schedulerPDF {
 					$this->dayHeader[] = $day;
 				}
 				break;
-			
+
 			case 'timeline':
 			case 'matrix':
 				foreach ($scales->x->column as $col) {
-					$this->columnHeader[] = $this->strip((string) $col);
+					if ($col->attributes()->second_scale)
+						$this->secondScale[] = array(
+							"text" => $this->strip((string) $col),
+							"scale" => (int) $col->attributes()->second_scale
+						);
+					else
+						$this->columnHeader[] = $this->strip((string) $col);
 				}
 				foreach ($scales->y->row as $row) {
 					$this->rowHeader[] = $this->strip((string) $row);
@@ -348,7 +358,7 @@ class schedulerPDF {
 		if ($this->footer !== false) {
 			$this->wrapper->setFooter($this->footerImg, $this->footerImgHeight);
 		}
-		$this->wrapper->drawTimelineHeader($this->columnHeader, $this->rowHeader, $this->cellColors, $this->sizes, $this->colors, $this->orientation);
+		$this->wrapper->drawTimelineHeader($this->columnHeader, $this->secondScale, $this->rowHeader, $this->cellColors, $this->sizes, $this->colors, $this->orientation);
 		$this->wrapper->drawToday($this->today, $this->sizes, $this->colors);
 
 		$heights = $this->getTimelineSectionHeights();
@@ -362,7 +372,7 @@ class schedulerPDF {
 			while (($drawed['height'] !== 0)) {
 				if ($this->profile === 'bw')
 					$this->wrapper->bwBorder($this->colors);
-				$this->wrapper->drawTimelineHeader($this->columnHeader, $this->rowHeader, $this->cellColors, $this->sizes, $this->colors, $this->orientation);
+				$this->wrapper->drawTimelineHeader($this->columnHeader, $this->secondScale, $this->rowHeader, $this->cellColors, $this->sizes, $this->colors, $this->orientation);
 				$this->wrapper->drawToday($this->today, $this->sizes, $this->colors);
 
 				$drawed = $this->wrapper->drawTimelineSection($this->rowHeader[$i], $drawed['height'], $this->cellColors[$i], $drawed['events'], $this->sizes, $this->colors);
@@ -373,7 +383,7 @@ class schedulerPDF {
 			$this->wrapper->bwBorder($this->colors);
 	}
 
-	
+
 	private function printMatrix() {
 		if ($this->header !== false) {
 			$this->wrapper->setHeader($this->headerImg, $this->headerImgHeight);
@@ -382,7 +392,7 @@ class schedulerPDF {
 			$this->wrapper->setFooter($this->footerImg, $this->footerImgHeight);
 		}
 		
-		$this->wrapper->drawTimelineHeader($this->columnHeader, $this->rowHeader, $this->cellColors, $this->sizes, $this->colors, $this->orientation);
+		$this->wrapper->drawTimelineHeader($this->columnHeader, array(), $this->rowHeader, $this->cellColors, $this->sizes, $this->colors, $this->orientation);
 		$this->wrapper->drawToday($this->today, $this->sizes, $this->colors);
 		$this->wrapper->drawMatrixEvents($this->events, $this->sizes, $this->colors);
 		if ($this->profile === 'bw')

@@ -705,7 +705,7 @@ class pdfWrapper {
 
 
 	// draws headers and grid for timeline mode
-	public function drawTimelineHeader($columnHeader, $rowHeader, $cellColors, $sizes, $colors, $orientation = 'P') {
+	public function drawTimelineHeader($columnHeader, $secondScale, $rowHeader, $cellColors, $sizes, $colors, $orientation = 'P') {
 		$this->cb->addPage($orientation);
 		$bgColor = $this->convertColor($colors->bgColor);
 		$lineColor = $this->convertColor($colors->lineColor);
@@ -725,8 +725,15 @@ class pdfWrapper {
 		$this->setTextColor($headerTextColor);
 
 		// calculates cell width and height
-		$this->colWidth = ($this->cb->getPageWidth() - $this->offsetLeft - $this->offsetRight - $sizes->dayLeftWidth)/count($columnHeader);
+		$this->colWidth = ($this->cb->getPageWidth() - $this->offsetLeft - $this->offsetRight - $sizes->dayLeftWidth)/count(count($secondScale)>0 ? $secondScale : $columnHeader);
 		$this->colHeight = ($this->cb->getPageHeight() + $this->headerImgHeight + $this->footerImgHeight - $this->offsetTop - $this->offsetBottom - $sizes->dayTopHeight)/count($rowHeader);
+
+		$width = array();
+		for ($i = 0; $i < count($secondScale); $i++) {
+			if (!isset($width[$secondScale[$i]["scale"]]))
+				$width[$secondScale[$i]["scale"]] = 0;
+			$width[$secondScale[$i]["scale"]] += $this->colWidth;
+		}
 
 		$this->cb->setX($this->offsetLeft + $sizes->dayLeftWidth);
 		$this->cb->setY($this->offsetTop, false);
@@ -735,15 +742,29 @@ class pdfWrapper {
 		$this->cb->setFontSize($sizes->dayHeaderFontSize);
 		for ($i = 0; $i < count($columnHeader); $i++) {
 			$Ln = ($i == count($columnHeader) - 1) ? 1 : 0;
-			$border = ($i > 0) ? 'L' : 0;
-			$this->cb->Cell($this->colWidth, $sizes->dayTopHeight, $columnHeader[$i], $border, $Ln, 'C', 1);
+			$border = ($i > 0) ? 'L' : '';
+			$colWidth = isset($width[$i + 1]) ? $width[$i + 1] : $this->colWidth;
+			$this->cb->Cell($colWidth, $sizes->dayTopHeight, $columnHeader[$i], $border, $Ln, 'C', 1);
+		}
+		
+		// draws second scales on top
+		if (count($secondScale) > 0) {
+			$this->cb->setX($this->offsetLeft + $sizes->dayLeftWidth);
+			$this->cb->setFontSize($sizes->dayHeaderFontSize);
+			$this->columnHeader = array();
+			for ($i = 0; $i < count($secondScale); $i++) {
+				$this->columnHeader[$i] = $secondScale[$i]["text"];
+				$Ln = ($i == count($secondScale) - 1) ? 1 : 0;
+				$border = 'T'.($i > 0 ? 'L' : '');
+				$this->cb->Cell($this->colWidth, $sizes->dayTopHeight, $secondScale[$i]["text"], $border, $Ln, 'C', 1);
+			}
+			$this->offsetTop += $sizes->dayTopHeight;
 		}
 		$this->drawImgHeader();
 		$this->drawImgFooter();
 	}
 
 
-//	public function drawTimelineSection($name, $height, $cellColors, $events, $eventHeight, $colors, $timelineEventFontSize, $mode) {
 	public function drawTimelineSection($name, $height, $cellColors, $events, $sizes, $colors) {
 		$bgColor = $this->convertColor($colors->bgColor);
 		$lineColor = $this->convertColor($colors->lineColor);

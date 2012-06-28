@@ -691,6 +691,8 @@ class Sizes {
 	public $multidayLineHeight = 5;
 	// height of month line event
 	public $monthEventHeaderHeight = 4;
+	// height of month line event
+	public $monthEventMultidayHeight = 4;
 	// header height of day container in month mode
 	public $weekAgendaEventHeight = 6;
 

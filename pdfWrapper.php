@@ -168,7 +168,7 @@ class pdfWrapper {
 				$width = $this->dayWidth - 1;
 				$x += 0.5;
 			}
-			$height = 4;
+			$height = $sizes->monthEventMultidayHeight;
 
 			$this->cb->setX($x);
 			$this->cb->setY($y, false);

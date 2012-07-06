@@ -11,6 +11,7 @@ if (get_magic_quotes_gpc()) {
 } else {
 	$xmlString = $_POST['mycoolxmlbody'];
 }
+$xmlString = urldecode($xmlString);
 
 if ($debug == true) {
 	error_log($xmlString, 3, 'debug_'.date("Y_m_d__H_i_s").'.xml');

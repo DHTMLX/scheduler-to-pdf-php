@@ -1244,6 +1244,10 @@ class pdfWrapper {
 	private function setTextColor($color) {
 		$this->cb->SetTextColor($color['R'], $color['G'], $color['B']);
 	}
+	
+	public function addPage($orientation) {
+		$this->cb->AddPage($orientation);
+	}
 
 }
 

@@ -3,6 +3,7 @@
 class schedulerPDF {
 
 
+	protected $wrapper = null;
 	public $strip_tags = false;
 
 	/* header/footer printing */
@@ -19,8 +20,26 @@ class schedulerPDF {
 	private $today;
 	private $multiday = Array();
 	private $secondScale = array();
+	private $first = true;
 
-	public function printScheduler($xml) {
+	public function printPDF($xmlString) {
+		$xml = new SimpleXMLElement($xmlString, LIBXML_NOCDATA);
+		if (count($xml->page) == 0)
+			$this->printPage($xml);
+		else
+			for ($i = 0; $i < count($xml->page); $i++) {
+				$this->printPage($xml->page[$i]);
+			}
+			
+		$this->output();
+	}
+
+	private function printPage($xml) {
+		$this->columnHeader = array();
+		$this->rowHeader = array();
+		$this->dayHeader = array();
+		$this->events = array();
+		$this->multiday = array();
 		$this->renderData($xml);
 		$this->renderScales($xml);
 		$this->renderEvents($xml);
@@ -31,7 +50,10 @@ class schedulerPDF {
 		if ($this->footer !== false) {
 			$this->sizes->offsetBottom += $this->footerImgHeight;
 		}
-		$this->wrapper = new pdfWrapper($this->sizes);
+		if (!$this->wrapper)
+			$this->wrapper = new pdfWrapper($this->sizes);
+//		else
+//			$this->wrapper->addPage($this->orientation);
 		if (strpos($this->mode, "timeline") !== false)
 			$this->mode = "timeline";
 		switch ($this->mode) {
@@ -69,6 +91,9 @@ class schedulerPDF {
 				break;
 		}
 
+	}
+	
+	private function output() {
 		$this->wrapper->pdfOut();
 	}
 

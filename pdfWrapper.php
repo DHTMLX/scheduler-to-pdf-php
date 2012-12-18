@@ -773,6 +773,8 @@ class pdfWrapper {
 		$headerLineColor = $this->convertColor($colors->headerLineColor);
 		
 		$height = $this->colHeight*$height/100;
+		if ($height < $sizes->minTimelineSectionHeight)
+			$height = $sizes->minTimelineSectionHeight;
 		$diff_height = 0;
 		if (($this->offsetTop + $this->topHeight + $this->timelineSectionsY + $height) > ($this->cb->getPageHeight() - $this->offsetBottom)) {
 			$diff_height = -($this->cb->getPageHeight() - $this->offsetBottom - $this->offsetTop - $this->topHeight - $this->timelineSectionsY - $height);
@@ -952,7 +954,7 @@ class pdfWrapper {
 		for ($i = 0; $i < count($events); $i++) {
 			$event = $events[$i];
 			$x = $this->offsetLeft + $this->leftWidth + $this->colWidth*$event['x']/100;
-			$y = $this->offsetTop + $this->topHeight + $this->timelineSectionsY + $this->colHeight*$event['y']/100;
+			$y = $this->offsetTop + $this->topHeight + $this->timelineSectionsY + $sectionHeight*$event['y']/100;
 			$width = $this->colWidth*$event['width']/100;
 			$height = $sizes->timelineEventHeight;
 			$text = $event['body'];

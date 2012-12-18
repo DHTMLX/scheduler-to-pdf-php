@@ -387,9 +387,8 @@ class schedulerPDF {
 		$this->wrapper->drawToday($this->today, $this->sizes, $this->colors);
 
 		$heights = $this->getTimelineSectionHeights();
-		$max_heights = $heights['max_heights'];
-		$add_event_height = $heights['add_event_height'];
-
+		$max_heights = $heights;
+		
 		for ($i = 0; $i < count($this->rowHeader); $i++) {
 			$drawed = $this->wrapper->drawTimelineSection($this->rowHeader[$i], $max_heights[$i], $this->cellColors[$i], $this->getEventsByWeek($i), $this->sizes, $this->colors);
 			$k = 0;
@@ -442,10 +441,9 @@ class schedulerPDF {
 
 
 	private function getTimelineSectionHeights() {
-		$normal_sections = Array();
-		$whole_height = count($this->rowHeader)*100;
-		$max_heights = Array();
-		$add_event_height = Array();
+		$default_height = 100;
+		$heights = Array();
+
 		for ($i = 0; $i < count($this->rowHeader); $i++) {
 			$events = $this->getEventsByWeek($i);
 			$max_height = 0;
@@ -454,23 +452,13 @@ class schedulerPDF {
 					$max_height = $events[$j]['y'] + $this->getTimelineEventRelativeHeight();
 				}
 			}
-			if ($max_height <= 100) {
-				$max_height = 100;
-				$normal_sections[] = $i;
-				$add_event_height[$i] = 0;
-			} else {
-				$add_event_height[$i] = $this->sizes->timelineEventHeight;
-				$add_event_height[$i] = 0;
-			}
-			$whole_height -= $max_height;
-			$max_heights[$i] = $max_height;
+			$heights[$i] = $max_height == 0 ? $this->getTimelineEventRelativeHeight() : $max_height;
 		}
-		$add_height = (count($normal_sections) > 0) ? $whole_height/count($normal_sections) : 0;
-		if (100 + $add_height >= $this->sizes->minTimelineSectionHeight) {
-			for ($i = 0; $i < count($normal_sections); $i++)
-				$max_heights[$normal_sections[$i]] += $add_height;
+		$section_height = array_sum($heights)/count($heights);
+		for ($i = 0; $i < count($heights); $i++) {
+			$heights[$i] = $heights[$i]*$default_height/$section_height;
 		}
-		return Array('max_heights' => $max_heights, 'add_event_height' => $add_event_height);
+		return $heights;
 	}
 
 
@@ -709,7 +697,7 @@ class Sizes {
 	// width of left scale in day and week mode
 	public $dayLeftWidth = 26;
 	// minimal height of timeline section in relative units (100) - default height of section
-	public $minTimelineSectionHeight = 50;
+	public $minTimelineSectionHeight = 24;
 	// timeline event height
 	public $timelineEventHeight = 4;
 	// height of one multiday line

@@ -726,7 +726,7 @@ class pdfWrapper {
 
 		// calculates cell width and height
 		$this->colWidth = ($this->cb->getPageWidth() - $this->offsetLeft - $this->offsetRight - $sizes->dayLeftWidth)/count(count($secondScale)>0 ? $secondScale : $columnHeader);
-		$this->colHeight = ($this->cb->getPageHeight() + $this->headerImgHeight + $this->footerImgHeight - $this->offsetTop - $this->offsetBottom - $sizes->dayTopHeight)/count($rowHeader);
+		$this->colHeight = ($this->cb->getPageHeight() - $this->offsetTop - $this->offsetBottom - $sizes->dayTopHeight)/count($rowHeader);
 
 		$width = array();
 		for ($i = 0; $i < count($secondScale); $i++) {

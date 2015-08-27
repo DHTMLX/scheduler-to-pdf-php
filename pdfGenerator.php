@@ -195,6 +195,26 @@ class schedulerPDF {
 				break;
 
 			case 'timeline':
+				foreach ($scales->x->column as $col) {
+					if ($col->attributes()->second_scale)
+						$this->secondScale[] = array(
+							"text" => $this->strip((string) $col),
+							"scale" => (int) $col->attributes()->second_scale
+						);
+					else
+						$this->columnHeader[] = $this->strip((string) $col);
+				}
+				foreach ($scales->y->row as $row) {
+					$this->rowHeader[] = $this->strip((string) $row);
+					if (isset($row->attributes()->bg)) {
+						$bgs = $this->strip((string) $row->attributes()->bg);
+						$bgs = explode("|", $bgs);
+					} else {
+						$bgs = false;
+					}
+					$this->cellColors[] = $bgs;
+				}
+				break;
 			case 'matrix':
 				foreach ($scales->x->column as $col) {
 					if ($col->attributes()->second_scale)
@@ -214,6 +234,11 @@ class schedulerPDF {
 						$bgs = false;
 					}
 					$this->cellColors[] = $bgs;
+				}
+				if (sizeof($this->secondScale)){
+					for ($i=0; $i < sizeof($this->secondScale); $i++) { 
+						$this->columnHeader[$i] = $this->secondScale[$i]["text"];
+					}
 				}
 				break;
 
@@ -699,7 +724,7 @@ class Sizes {
 	// minimal height of timeline section in relative units (100) - default height of section
 	public $minTimelineSectionHeight = 24;
 	// timeline event height
-	public $timelineEventHeight = 4;
+	public $timelineEventHeight = 17;
 	// height of one multiday line
 	public $multidayLineHeight = 5;
 	// height of month line event
